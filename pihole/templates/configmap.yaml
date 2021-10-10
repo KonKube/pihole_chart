@@ -1,0 +1,15 @@
+{{- if .Values.extraConfigMap }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "pihole.fullname" . }}
+  labels: {{ include "pihole.labels" . | nindent 4 }}
+data:
+  {{- range .Values.extraConfigMap }}
+  {{ .name }}: |
+    {{- range $value := .content | splitList "\n" }}
+    {{ print $value }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+

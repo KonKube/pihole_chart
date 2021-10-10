@@ -1,0 +1,156 @@
+{{- $fullName := include "pihole.fullname" . -}}
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ template "pihole.fullname" . }}
+  labels: {{ include "pihole.labels" . | nindent 4 }}
+spec:
+  updateStrategy:
+{{ toYaml .Values.updateStrategy | indent 4 }}
+  selector:
+    matchLabels: {{ include "pihole.labels" . | nindent 6 }}
+  template:
+    metadata:
+      labels: {{ include "pihole.labels" . | nindent 8 }}
+        {{- range $key, $value := .Values.labels }}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
+      annotations:
+        {{- range $key, $value := .Values.podAnnotations }}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
+        {{- if .Values.extraConfigMap }}
+          {{- range .Values.extraConfigMap }}
+        custom-{{ .name | replace "." "" }}-Checksum: {{ .content | sha256sum | trunc 63 }}
+          {{- end }}
+        {{- end }}
+        {{- if .Values.encryptedSecrets }}
+          {{- range $key, $value := .Values.encryptedSecrets }}
+        custom-{{ $key }}-Checksum: {{ $value | sha256sum | trunc 63 }}
+          {{- end }}
+        {{- end }}
+    spec:
+{{- if .Values.priorityClassName }}
+      priorityClassName: {{ .Values.priorityClassName }}
+{{- end }}
+      securityContext:
+{{ toYaml .Values.podSecurityContext | indent 8 }}
+      {{- if .Values.serviceAccount }}
+      serviceAccount: {{ .Values.serviceAccount }}
+      {{- end }}
+      {{- if .Values.hostAliases }}
+      hostAliases: {{ toYaml .Values.hostAliases | nindent 6 }}
+      {{- end }}
+      {{- if or .Values.secretMounts .Values.extraConfigMap .Values.extraVolumes }}
+      volumes:
+        {{- if .Values.secretMounts }}
+          {{- range .Values.secretMounts }}
+        - name: {{ .name }}
+          secret:
+            secretName: {{ .secretName }}
+          {{- end }}
+        {{- end }}
+        {{- if .Values.extraConfigMap }}
+          {{- range .Values.extraConfigMap }}
+        - name: {{ .name | replace "." "-" }}
+          configMap:
+            name: {{ $fullName }}
+            items:
+              - key: {{ .name }}
+                path: {{ .name }}
+                mode: {{ .mode }}
+          {{- end }}
+        {{- end }}
+        {{- if .Values.extraVolumes }}
+          {{ toYaml .Values.extraVolumes | nindent 10 }}
+        {{- end }}
+      {{- end }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+      affinity:
+      {{- if .Values.affinity }}
+{{ toYaml .Values.affinity | indent 8 }}
+      {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml .Values.imagePullSecrets | indent 8 }}
+    {{- end }}
+    {{- if .Values.podDnsConfig }}
+      dnsPolicy: {{ .Values.podDnsConfig.policy }}
+      dnsConfig:
+        nameservers:
+        {{- toYaml .Values.podDnsConfig.nameservers | nindent 8 }}
+      {{- end }}
+      {{- if .Values.extraInitContainers }}
+      initContainers:
+{{ toYaml .Values.extraInitContainers | indent 6 }}
+      {{- end }}
+      containers:
+      - name: pihole
+        securityContext:
+{{ toYaml .Values.securityContext | indent 10 }}
+        image: "{{ .Values.image }}:{{ .Values.imageTag }}"
+        imagePullPolicy: "{{ .Values.imagePullPolicy }}"
+{{- if .Values.extraEnvs }}
+        env:
+{{ toYaml .Values.extraEnvs | indent 10 }}
+{{- end }}
+{{- if or (.Values.envFrom) (.Values.encryptedSecrets) }}
+        envFrom:
+  {{- if .Values.envFrom }}
+{{ toYaml .Values.envFrom | indent 10 }}
+  {{- end }}
+  {{- if .Values.encryptedSecrets }}
+          - secretRef:
+              name: {{ template "pihole.fullname" . }}
+  {{- end }}
+{{- end }}
+        {{- if .Values.readinessProbe }}
+        readinessProbe:
+{{ toYaml .Values.readinessProbe | indent 10 }}
+        {{- end }}
+        {{- if .Values.livenessProbe }}
+        livenessProbe:
+{{ toYaml .Values.livenessProbe | indent 10 }}
+        {{- end }}
+        ports:
+        {{- if .Values.service }}
+          {{- range .Values.service }}
+          - name: {{ .name }}-{{ .type | lower | trunc 4 }}-{{ .protocol | lower }}
+            containerPort: {{ .targetPort }}
+            protocol: {{ .protocol }}
+          {{- end }}
+        {{- end }}
+{{- if .Values.lifecycle }}
+        lifecycle:
+{{ toYaml .Values.lifecycle | indent 10 }}
+{{- end }}
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+        volumeMounts:
+          {{- range .Values.secretMounts }}
+          - name: {{ .name }}
+            mountPath: {{ .path }}
+            {{- if .subPath }}
+            subPath: {{ .subPath }}
+            {{- end }}
+          {{- end }}
+        {{- if .Values.extraVolumeMounts }}
+          {{ toYaml .Values.extraVolumeMounts | nindent 10 }}
+        {{- end }}
+        {{- if .Values.extraConfigMap }}
+            {{- range .Values.extraConfigMap }}
+          - name: {{ .name | replace "." "-" }}
+            mountPath: {{ .path }}{{ .name }}
+            subPath: {{ .name }}
+            {{- end }}
+          {{- end }}
+      {{- if .Values.extraContainers }}
+{{ toYaml .Values.extraContainers | indent 6 }}
+      {{- end }}

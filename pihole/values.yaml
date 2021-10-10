@@ -1,0 +1,277 @@
+nameOverride: ""
+fullnameOverride: ""
+
+image: "pihole/pihole"
+imageTag: "2021.10"
+imagePullPolicy: "IfNotPresent"
+imagePullSecrets: []
+
+updateStrategy:
+  type: "RollingUpdate"
+
+labels: {}
+
+podAnnotations: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+service: []
+  # - name: http
+  #   type: ClusterIP
+  #   port: 80
+  #   targetPort: 80
+  #   protocol: TCP
+  # - name: https
+  #   type: ClusterIP
+  #   port: 443
+  #   targetPort: 443
+  #   protocol: TCP
+  # - name: dhcp
+  #   type: NodePort
+  #   port: 67
+  #   targetPort: 67
+  #   nodePort: 67
+  #   protocol: UDP
+  # - name: dhcpv6
+  #   type: NodePort
+  #   port: 547
+  #   targetPort: 547
+  #   nodePort: 547
+  #   protocol: UDP
+  # - name: dns
+  #   type: LoadBalancer
+  #   port: 53
+  #   targetPort: 53
+  #   protocol: TCP
+  # - name: dns
+  #   type: LoadBalancer
+  #   loadBalancerIP: "192.168.2.41"
+  #   port: 53
+  #   targetPort: 53
+  #   protocol: UDP
+
+extraEnvs: []
+# - name: TZ
+#   value: "Europe/Berlin"
+# - name: ADMIN_MAIL
+#   value: ""
+# - name: DNSSEC
+#   value: "false"
+# - name: DNS_BOGUS_PRIV
+#   value: "true"
+# - name: DNS_FQDN_REQUIRED
+#   value: "true"
+# - name: REV_SERVER
+#   value: "false"
+# - name: REV_SERVER_DOMAIN
+#   value: ""
+# - name: REV_SERVER_TARGET
+#   value: ""
+# - name:  REV_SERVER_CIDR
+#   value: ""
+# - name: DHCP_ACTIVE
+#   value: "false"
+# - name: DHCP_START
+#   value: ""
+# - name: DHCP_END
+#   value: ""
+# - name: DHCP_ROUTER
+#   value: ""
+# - name: DHCP_LEASETIME
+#   value: "24"
+# - name: PIHOLE_DOMAIN
+#   value: "lan"
+# - name: DHCP_IPv6
+#   value: "false"
+# - name: DHCP_rapid_commit
+#   value: "false"
+# - name: VIRTUAL_HOST
+#   value: "$ServerIP"
+# - name: IPv6
+#   value: "true"
+# - name:  TEMPERATUREUNIT
+#   value: "c"
+# - name: WEBUIBOXEDLAYOUT
+#   value: "boxed"
+# - name:  QUERY_LOGGING
+#   value: "true"
+# - name: ServerIPv6
+#   value: ""
+# - name: INTERFACE
+#   value: ""
+# - name: DNSMASQ_LISTENING
+#   value: ""
+# - name: WEB_PORT
+#   value: ""
+# - name: SKIPGRAVITYONBOOT
+#   value: ""
+# - name: DNSMASQ_USER
+#   value: "pihole"
+
+envFrom: []
+# - secretRef:
+#     name: secretname
+# - configMapRef:
+#     name: configmap
+
+secretMounts: []
+# - name: somesecret
+#   secretName: some-secret
+#   path: /usr/share/secrets
+#   subPath: some-secret
+
+encryptedSecrets: {}
+#  WEBPASSWORD: "**********"
+
+resources: {}
+#  requests:
+#    cpu: "100m"
+#    memory: "256Mi"
+#  limits:
+#    cpu: "200m"
+#    memory: "512Mi"
+
+podSecurityContext: {}
+  # fsGroup: 1000
+
+securityContext: 
+  capabilities:
+    # drop:
+    # - ALL
+    add:
+    - NET_ADMIN
+  runAsNonRoot: false
+  runAsUser: 0
+
+priorityClassName: ""
+
+extraConfigMap: []
+  # - name: addn-hosts
+  #   path: /etc/
+  #   mode: 0644
+  #   content: |
+  #     192.168.2.45 pihole.xxx
+  #     192.168.2.45 coder.xxx  
+  #     192.168.2.31 k3s-server-01
+  #     192.168.2.32 k3s-agent-01
+  # - name: adlists.list
+  #   path: /etc/pihole/
+  #   content: |
+  #     https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+  #     https://dbl.oisd.nl/basic/
+  #     https://dbl.oisd.nl/
+  #     https://raw.githubusercontent.com/mmotti/pihole-regex/master/regex.list
+  #     #! Or See other sources here: https://firebog.net
+  # - name: regex.list
+  #   path: /etc/pihole/
+  #   content: |
+  #     (^|\.)something-suspicious\.com$
+  # - name: whitelist.txt
+  #   path: /etc/pihole/
+  #   content: |
+  #     *.something-suspicious.com 
+  # - name: blacklist.txt
+  #   path: /etc/pihole/
+  #   content: |
+  #     *.something-suspicious.com
+  # - name: pihole-FTL.conf
+  #   path: /etc/pihole/
+  #   content: |
+  #     MAXDBDAYS: 14
+  # - name: 04-pihole-static-dhcp.conf
+  #   path: /etc/dnsmasq.d/
+  #   content: |
+  #     dhcp-host=MAC,IP,HOSTNAME
+  # - name: 02-custom.conf
+  #   path: /etc/dnsmasq.d/
+  #   content: |
+  #     server=/some.thing/192.168.1.10
+  #     server=/any.thing/192.168.1.11
+  #     address=/pi-hole.lan/192.168.1.250
+  #     address=/myowncloud.lan/192.168.1.10
+  #     rebind-domain-ok=/plex.direct/
+  #     cname=cname.some.thing,some.thing
+  #     cname=cname.any.thing,any.thing
+  #     cname=cname special,dns special
+  # - name: 05-pihole-custom-cname.conf
+  #   path: /etc/dnsmasq.d/
+  #   content: |
+  #     cname=cname.some.thing,some.thing
+  #     cname=cname.any.thing,any.thing
+  #     cname=cname special,dns special
+
+extraVolumes: []
+  # - name: extravolume
+  #   emptyDir: {}
+
+extraVolumeMounts: []
+  # - name: extramount
+  #   mountPath: /usr/share/extramount
+  #   readOnly: true
+  
+extraContainers: ""
+# - name: sidecar
+#   image: busybox
+#   command: ['echo', 'helloworld!']
+
+extraInitContainers: ""
+# - name: init
+#   image: busybox
+#   command: ['echo', 'helloworld!']
+
+ingress:
+  enabled: "false"
+  annotations: {}
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+readinessProbe: {}
+  # httpGet:
+  #   path: /admin.index.php
+  #   port: 80
+  # initialDelaySeconds: 60
+  # periodSeconds: 10
+  # timeoutSeconds: 5
+  # failureThreshold: 3
+  # successThreshold: 1
+
+livenessProbe: {}
+  # httpGet:
+  #   path: /admin.index.php
+  #   port: 80
+  # initialDelaySeconds: 60
+  # periodSeconds: 10
+  # timeoutSeconds: 5
+  # failureThreshold: 3
+  # successThreshold: 1
+
+lifecycle: {}
+  # preStop:
+  #   exec:
+  #     command: ["/bin/sh", "-c", "echo Helloworld"]
+  # postStart:
+  #   exec:
+  #     command: ["/bin/sh", "-c", "echo Helloworld"]
+
+hostAliases: []
+# - ip: "127.0.0.1"
+#   hostnames:
+#   - "some.local"
+#   - "cloud.local"
+
+podDnsConfig: {}
+  # policy: "None"
+  # nameservers:
+  # - 8.8.4.4
+  # - 8.8.8.8

@@ -1,0 +1,75 @@
+{{- if .Values.ingress.enabled -}}
+{{- $fullName := include "pihole.fullname" . -}}
+{{- $ingressPath := .Values.ingress.path -}}
+{{- $service := .Values.service -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $fullName }}
+  labels: {{ include "pihole.labels" . | nindent 4 }}
+{{- with .Values.ingress.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
+spec:
+{{- if .Values.ingress.tls }}
+  tls:
+  {{- if .ingressPath }}
+  {{- range .Values.ingress.tls }}
+  - hosts:
+    {{- range .hosts }}
+      - {{ . }}
+    {{- end }}
+    secretName: {{ .secretName }}
+    {{- end }}
+  {{- else }}
+{{ toYaml .Values.ingress.tls | indent 4 }}
+  {{- end }}
+{{- end }}
+  rules:
+  {{- range .Values.ingress.hosts }}
+    {{- if $ingressPath }}
+    - host: {{ . }}
+      http:
+        paths:
+          - path: {{ $ingressPath }}
+            pathType: {{ .pathType }}
+            backend:
+              {{- range $service }}
+                {{- if eq .name "https" }}
+              service:
+                name: {{ $fullName }}-{{ .name | lower }}-{{ .type | lower }}-{{ .protocol | lower }}
+                port:
+                 number: {{ .port }}
+                {{- else if eq .name "http" }}
+              service:
+                name: {{ $fullName }}-{{ .name | lower }}-{{ .type | lower }}-{{ .protocol | lower }}
+                port:
+                 number: {{ .port }}
+                {{- end }}
+              {{- end }}
+    {{- else }}
+    - host: {{ .host }}
+      http:
+        paths:
+        {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              {{- range $service }}
+                {{- if eq .name "https" }}
+              service:
+                name: {{ $fullName }}-{{ .name | lower }}-{{ .type | lower }}-{{ .protocol | lower }}
+                port:
+                 number: {{ .port }}
+                {{- else if eq .name "http" }}
+              service:
+                name: {{ $fullName }}-{{ .name | lower }}-{{ .type | lower }}-{{ .protocol | lower }}
+                port:
+                 number: {{ .port }}
+                {{- end }}
+              {{- end }}
+        {{- end }}
+    {{- end }}
+  {{- end }}
+{{- end }}

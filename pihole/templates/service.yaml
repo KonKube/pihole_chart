@@ -1,0 +1,30 @@
+{{- $fullName := include "pihole.fullname" . -}}
+{{- $labels := include "pihole.labels" . -}}
+{{- if .Values.service }}
+  {{- range .Values.service }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $fullName }}-{{ .name | lower }}-{{ .type | lower }}-{{ .protocol | lower }}
+  labels: {{ $labels | nindent 4 }}
+#  {{- if .annotations }}
+#  annotations:
+#    {{ toYaml .annotations | nindent 4 }}
+#  {{- end }}
+spec:
+  type: {{ .type }}
+  {{- if .loadBalancerIP }}
+  loadBalancerIP: {{ .loadBalancerIP }}
+  {{- end }}
+  ports:
+    - name: {{ .name }}
+      port: {{ .port }}
+      targetPort: {{ .targetPort }}
+      {{- if .nodePort }}
+      nodePort: {{ .nodePort }}
+      {{- end }}
+      protocol: {{ .protocol }}
+  selector: {{ $labels | nindent 4 }}
+  {{- end }}
+{{- end }}
