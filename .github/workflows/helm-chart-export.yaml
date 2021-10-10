@@ -18,12 +18,11 @@ jobs:
       - name: Install Helm 3
         run: curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
       
-      - name: Prepare instance
+      - name: Provide SSH private key
         run: |
           mkdir ~/.ssh
           echo $SSH_KEY > ~/.ssh/id_rsa
-          ls -rtla ~
-          ls -rtla ~/.ssh
+          chmod 600 ~/.ssh/id_rsa
 
       - name: Create Chart and upload to helm_chart repository
         run: |
@@ -36,7 +35,6 @@ jobs:
           git config user.name github-actions
           git config user.email info.konkube@gmail.com
           git add $CHART-$VERSION.tgz
-          git status
-#          git commit -m "Added $CHART-$VERSION.tgz"
-#          git push
+          git commit -m "Added $CHART-$VERSION.tgz"
+          git push
           
