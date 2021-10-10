@@ -20,7 +20,7 @@ jobs:
       
       - name: Prepare instance
         run: |
-          mkdir .ssh
+          mkdir ~/.ssh
           echo $SSH_KEY > ~/.ssh/id_rsa
           ls -rtla ~
           ls -rtla ~/.ssh
