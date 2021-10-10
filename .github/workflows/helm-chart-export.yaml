@@ -20,12 +20,15 @@ jobs:
       
       - name: Prepare instance
         run: |
+          mkdir .ssh
+          echo $SSH_KEY > ~/.ssh/id_rsa
           ls -rtla ~
+          ls -rtla ~/.ssh
 
       - name: Create Chart and upload to helm_chart repository
         run: |
           CHART=`echo $GITHUB_REPOSITORY | grep -oP '(?<=KonKube\/).*(?=_)'`
-          VERSION=`cat $CHART/Chart.yaml | grep -oP '(?<=version:\s).*'
+          VERSION=`cat $CHART/Chart.yaml | grep -oP '(?<=version:\s).*'`
           helm package $CHART
           git clone https://github.com/KonKube/helm_charts.git
           mv $CHART-$VERSION.tgz ./helm_charts
