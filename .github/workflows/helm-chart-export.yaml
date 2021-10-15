@@ -27,9 +27,9 @@ jobs:
           CHART=`echo $GITHUB_REPOSITORY | grep -oP '(?<=KonKube\/).*(?=_)'`
           VERSION=`cat $CHART/Chart.yaml | grep -oP '(?<=version:\s).*'`
           helm package $CHART
-          git clone git@github.com:KonKube/helm_charts.git
-          mv $CHART-$VERSION.tgz ./helm_charts
-          cd ./helm_charts
+          git clone git@github.com:KonKube/helm-charts.git
+          mv $CHART-$VERSION.tgz ./helm-charts
+          cd ./helm-charts
           git config user.name github-konkube-actions
           git config user.email info.konkube@gmail.com
           git add $CHART-$VERSION.tgz
