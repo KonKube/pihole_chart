@@ -24,9 +24,6 @@ jobs:
         run: |
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null
           ssh-add - <<< "${{ secrets.SSH_KEY }}"
-
-      - name: Create Chart and upload to helm_chart repository
-        run: |
           CHART=`echo $GITHUB_REPOSITORY | grep -oP '(?<=KonKube\/).*(?=_)'`
           VERSION=`cat $CHART/Chart.yaml | grep -oP '(?<=version:\s).*'`
           helm package $CHART
