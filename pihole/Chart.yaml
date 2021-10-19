@@ -1,6 +1,6 @@
 apiVersion: v2
 description: Inofficial helm chart for Pi-hole
-home: https://github.com/KonKube/pihole_chart
+home: https://konkube.github.io/helm-charts/
 maintainers:
 - email: info.konkube@gmail.com
   name: KonKube
@@ -8,4 +8,4 @@ name: pihole
 version: 1.0.0
 appVersion: 2021.10
 sources:
-  - https://github.com/pi-hole/pi-hole
+  - https://github.com/KonKube/pihole_chart

@@ -19,10 +19,8 @@ jobs:
         run: curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
       
       - name: Provide SSH private key
-        env: 
-          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         run: |
-          ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+          ssh-agent -a /tmp/ssh_agent.sock > /dev/null
           ssh-add - <<< "${{ secrets.SSH_KEY }}"
           CHART=`echo $GITHUB_REPOSITORY | grep -oP '(?<=KonKube\/).*(?=_)'`
           VERSION=`cat $CHART/Chart.yaml | grep -oP '(?<=version:\s).*'`
